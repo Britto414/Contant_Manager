@@ -1,13 +1,15 @@
 const User = require("../models/UserSchema")
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const asyncHandler = require('express-async-handler') 
 
-const LoginUser = async(req , res)=>{
+const LoginUser = asyncHandler(async(req , res)=>{
     const {mail, password} = req.body;
-    console.log(mail);
+    // console.log(mail);
     
     if(!mail || !password ){ 
-        res.status(404).send("Data Not Foud");
+        res.status(404)
+        throw new Error("invalid credential");
     }
 
     const user = await User.findOne({mail});
@@ -25,19 +27,19 @@ const LoginUser = async(req , res)=>{
             { expiresIn: "120m" }  
         );
         res.status(200).json({message:"Login Sccessful",token:accessToken,User:user})
+    }else{
+        res.status(403);
+        throw new Error('No User Found');
     }
+})
 
-    if(!user){
-        res.status(404).json({message:'No User Found'})
-    }
-}
-
-const RegisterUser = async (req, res) => {
+const RegisterUser = asyncHandler(async (req, res) => {
     const {user ,  mail, password } = req.body;
     // console.log(mail, password);
 
     if (!user || !mail || !password) {
-        return res.status(400).json({ error: 'All fields are mandatory' }); 
+        res.status(404)
+        throw new Error("invalid credential");
     }
 
     try {
@@ -58,14 +60,14 @@ const RegisterUser = async (req, res) => {
 
         res.status(201).json({ message: "User registered successfully", user: addedUser });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Something went wrong" });
+        res.status(500)
+        throw new Error("Something went wrong");
     }
-};
+});
 
 
 const CurrentUser = async(req , res)=>{
-    res.status(202).json({Current_User:req.user});
+    res.status(200).json({Current_User:req.user});
 }
 
 module.exports = {

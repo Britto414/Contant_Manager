@@ -1,8 +1,9 @@
 const { constants } = require("../constants");
 
 const errorHandle = (err, req, res, next) => {
-  let statusCode = res.statusCode && res.statusCode ? res.statusCode : 500; // Ensure valid status
-  // console.log("Error Status Code:", statusCode);
+  
+  let statusCode = res.statusCode ? res.statusCode : 500; // Ensure valid status
+  // console.log("Status Code:", statusCode);
 
   switch (statusCode) {
     case constants.VALIDATION_ERROR:
@@ -35,6 +36,8 @@ const errorHandle = (err, req, res, next) => {
         message: err.message,
         stackTrace: err.stack,
       });
+      // console.log("404");
+      
       break;
 
     case constants.SERVER_ERROR:
@@ -43,11 +46,6 @@ const errorHandle = (err, req, res, next) => {
         message: err.message,
         stackTrace: err.stack,
       });
-      break;
-
-    default:
-      console.log("All Good");
-      
       break;
   }
 };

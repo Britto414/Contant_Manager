@@ -13,6 +13,7 @@ const validToken =require('../Middleware/ValidateToken')
 
 router.use(validToken)
 
+
 router.route("/").get(getContacts)
 
 router.route("/").post(CreateContact)

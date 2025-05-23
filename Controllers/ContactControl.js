@@ -5,17 +5,18 @@ const mongoose = require('mongoose');
 const asyncHandler = require('express-async-handler')
 
 const getContacts = asyncHandler(async (req, res) => {
-    if (!req.user || !req.user.id) {
-        return res.status(400).json({ message: "User ID is required" });
-    }
-
-    const contacts = await Contact.find({ user_id: req.user.id });
-
-    if (contacts.length === 0) {
-        return res.status(200).json({ message: "No contacts found", contacts: [] });
+    
+    if (req.headers.Authorization) {
+        res.status(404) 
+        throw new Error("Token Not Found" );
     }
     // console.log(contacts);
     
+    const contacts = await Contact.find({ user_id: req.user.id });
+    
+    if (contacts.length === 0) {
+        return res.status(200).json({Message:"No Contact Found"})
+    }
     res.status(200).json(contacts);
 });
 
@@ -50,7 +51,8 @@ const DeleteContact = asyncHandler(async (req, res) => {
     }
 
     if (contact.user_id.toString() !== req.user.id) {
-        return res.status(403).json({ message: "Not authorized to access another user's contact" });
+        res.status(403);
+        throw new Error("Unauthorized User");
     }
 
     await contact.deleteOne(); 
@@ -63,7 +65,8 @@ const UpdateContact = async(req,res)=>{
     const contact = await Contact.findById(req.params.id);
      
     if (contact && contact.user_id.toString() !== req.user.id) {
-        res.status(403).json({ message: "Not authorized to access another user's contact" });
+         res.status(403);
+        throw new Error("Unauthorized User");
     }
     
     const updated = await Contact.findByIdAndUpdate(
@@ -71,7 +74,7 @@ const UpdateContact = async(req,res)=>{
         req.body ,
         {new :true}
     )
-    res.status(200).json({message: "Contact Updated",updated});
+    res.status(201).json({message: "Contact Updated",updated});
 }
 
 module.exports = {

@@ -9,21 +9,17 @@ const validToken = async(req,res , next)=>{
 
         jwt.verify(token , process.env.JWT_SECRET_PASSWORD,(err , decoded)=>{
             if(err){
-                res.status(401).json({Error:"Token is Incorrect"})
-                
+                res.status(401)
+                throw new Error("Token is unauthorized");
+            }else{
+                req.user = decoded.user;
             }
-
-            req.user = decoded.user;
             next();
         })
+    }else{
+        res.status(404)
+        throw new Error("Token not found")
     }
-
-    if(!token){
-        console.log( header);
-        
-        res.status(401).json({Error:"Token not found"})
-    }
-    // res.status(200).json(req.user)
 }
 
 module.exports = validToken;
